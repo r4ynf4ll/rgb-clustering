@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Image RGB 3D Visualizer</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        #image-preview { max-width: 400px; max-height: 400px; display: block; margin-bottom: 20px; }
+        #plot { width: 600px; height: 600px; }
+    </style>
+</head>
+<body>
+    <h2>Upload an Image</h2>
+    <input type="file" id="image-upload" accept="image/*">
+    <br><br>
+    <img id="image-preview" src="" alt="Image Preview" style="display:none;">
+    <div id="plot"></div>
+    <canvas id="hidden-canvas" style="display:none;"></canvas>
+    <script>
+        const upload = document.getElementById('image-upload');
+        const preview = document.getElementById('image-preview');
+        const canvas = document.getElementById('hidden-canvas');
+        const plotDiv = document.getElementById('plot');
+
+        upload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(ev) {
+                preview.src = ev.target.result;
+                preview.style.display = 'block';
+
+                preview.onload = function() {
+                    canvas.width = preview.naturalWidth;
+                    canvas.height = preview.naturalHeight;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(preview, 0, 0);
+
+                    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+                    const r = [], g = [], b = [], colors = [];
+
+                    // Increase targetPoints for more points displayed
+                    const targetPoints = 10000;
+                    const totalPixels = canvas.width * canvas.height;
+                    const step = Math.max(1, Math.floor(Math.sqrt(totalPixels / targetPoints)));
+
+                    for (let y = 0; y < canvas.height; y += step) {
+                        for (let x = 0; x < canvas.width; x += step) {
+                            const idx = (y * canvas.width + x) * 4;
+                            const red = imgData[idx];
+                            const green = imgData[idx + 1];
+                            const blue = imgData[idx + 2];
+                            r.push(red);
+                            g.push(green);
+                            b.push(blue);
+
+                            // Assign color based on highest value
+                            if (red >= green && red >= blue) {
+                                colors.push('rgb(255,0,0)');
+                            } else if (green >= red && green >= blue) {
+                                colors.push('rgb(0,255,0)');
+                            } else {
+                                colors.push('rgb(0,0,255)');
+                            }
+                        }
+                    }
+
+                    const trace = {
+                        x: r,
+                        y: g,
+                        z: b,
+                        mode: 'markers',
+                        type: 'scatter3d',
+                        marker: {
+                            size: 2,
+                            color: colors,
+                        }
+                    };
+                    const layout = {
+                        scene: {
+                            xaxis: { title: 'Red', range: [0,255] },
+                            yaxis: { title: 'Green', range: [0,255] },
+                            zaxis: { title: 'Blue', range: [0,255] }
+                        },
+                        margin: { l:0, r:0, b:0, t:0 }
+                    };
+                    Plotly.newPlot(plotDiv, [trace], layout, {responsive: true});
+                };
+            };
+            reader.readAsDataURL(file);
+        });
+    </script>
+</body>
+</html>

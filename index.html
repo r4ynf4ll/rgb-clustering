@@ -41,8 +41,8 @@
                     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                     const r = [], g = [], b = [], colors = [];
 
-                    // Increase targetPoints for more points displayed
-                    const targetPoints = 10000;
+                    // Display more points by increasing targetPoints and marker size
+                    const targetPoints = 20000;
                     const totalPixels = canvas.width * canvas.height;
                     const step = Math.max(1, Math.floor(Math.sqrt(totalPixels / targetPoints)));
 
@@ -56,14 +56,8 @@
                             g.push(green);
                             b.push(blue);
 
-                            // Assign color based on highest value
-                            if (red >= green && red >= blue) {
-                                colors.push('rgb(255,0,0)');
-                            } else if (green >= red && green >= blue) {
-                                colors.push('rgb(0,255,0)');
-                            } else {
-                                colors.push('rgb(0,0,255)');
-                            }
+                            // Use the actual pixel color for each point
+                            colors.push(`rgb(${red},${green},${blue})`);
                         }
                     }
 
@@ -74,7 +68,7 @@
                         mode: 'markers',
                         type: 'scatter3d',
                         marker: {
-                            size: 2,
+                            size: 3,
                             color: colors,
                         }
                     };

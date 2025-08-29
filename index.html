@@ -41,8 +41,8 @@
                     const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
                     const r = [], g = [], b = [], colors = [];
 
-                    // Display more points by increasing targetPoints and marker size
-                    const targetPoints = 20000;
+                    // Display even more points by increasing targetPoints and marker size
+                    const targetPoints = 50000; // Increased for more points
                     const totalPixels = canvas.width * canvas.height;
                     const step = Math.max(1, Math.floor(Math.sqrt(totalPixels / targetPoints)));
 
@@ -68,7 +68,7 @@
                         mode: 'markers',
                         type: 'scatter3d',
                         marker: {
-                            size: 3,
+                            size: 2, // Slightly smaller for more points
                             color: colors,
                         }
                     };
